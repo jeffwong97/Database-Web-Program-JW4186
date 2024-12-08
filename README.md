@@ -1,5 +1,5 @@
 # Database-Web-Program-JW4186
- Final project for Database Systems class
+ Jeffrey Wong's final project for Database Systems class
 
 - Languages: Python, HTML
 - Frameworks: flask, pymysql, bcrypt (for password encryption)

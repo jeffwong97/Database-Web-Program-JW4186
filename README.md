@@ -2,6 +2,6 @@
  Final project for Database Systems class
 
 Requirements:
-    ````pip install flask    
-    pip install pymysql     
+    ````pip install flask    <br>
+    pip install pymysql     <br>
     pip install bcrypt````

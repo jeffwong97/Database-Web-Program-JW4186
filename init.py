@@ -205,33 +205,6 @@ def order():
     else:
          message = "Order does not exist!"
     return render_template('home.html', username=username, items=items, itemsPieces=pieces, orderMessage=message, role=role, tasks=tasks)
-
-
-@app.route('/accept', methods=['GET', 'POST'])
-def accept():
-    if not session.get("logged_in"):
-        return redirect(url_for('index'))
-    if request.method == 'GET':
-         return redirect(url_for('home'))
-    username = session['username']
-    itemID = request.form['itemID']
-    cursor = conn.cursor()
-    #executes query
-    query = 'SELECT * FROM Piece WHERE itemID = %s'
-    cursor.execute(query, (itemID))
-    #stores the results in a variable
-    data = cursor.fetchall()
-    #use fetchall() if you are expecting more than 1 data row
-    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
-    cursor.execute(query, (username, username, username))
-    tasks = cursor.fetchall()
-    conn.commit()
-    cursor.close()
-    if (data):
-        message = "Here are the locations for all pieces in item " + itemID
-    else:
-         message = "Item does not exist!"
-    return render_template('home.html', username=username, pieces=data, itemMessage=message, tasks=tasks)
     
 
 def allowed_file(filename):

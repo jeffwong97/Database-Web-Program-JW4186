@@ -139,8 +139,8 @@ def home():
     role = cursor.fetchone()
 
     #Additional Features 8: User's tasks and 10: Update enabled
-    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
-    cursor.execute(query, (user, user, user))
+    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
+    cursor.execute(query, (user, user, user, user, user, user))
     tasks = cursor.fetchall()
     conn.commit()
     cursor.close()

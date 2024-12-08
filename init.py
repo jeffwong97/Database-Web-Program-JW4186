@@ -165,8 +165,8 @@ def item():
     query = 'SELECT rDescription FROM Role NATURAL JOIN Act WHERE userName = %s'
     cursor.execute(query, (username))
     role = cursor.fetchone()
-    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
-    cursor.execute(query, (username, username, username))
+    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
+    cursor.execute(query, (username, username, username, username, username, username))
     tasks = cursor.fetchall()
     conn.commit()
     cursor.close()
@@ -195,8 +195,8 @@ def order():
     query = 'SELECT rDescription FROM Role NATURAL JOIN Act WHERE userName = %s'
     cursor.execute(query, (username))
     role = cursor.fetchone()
-    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
-    cursor.execute(query, (username, username, username))
+    query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
+    cursor.execute(query, (username, username, username, username, username, username))
     tasks = cursor.fetchall()
     conn.commit()
     cursor.close()
@@ -237,8 +237,8 @@ def upload():
         donorRole = cursor.fetchone()
         if (donorRole.get('roleID') != '2'):
             message = 'No donor found with the provided username'
-            query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
-            cursor.execute(query, (username, username, username))
+            query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
+            cursor.execute(query, (username, username, username, username, username, username))
             tasks = cursor.fetchall()
             conn.commit()
             cursor.close()

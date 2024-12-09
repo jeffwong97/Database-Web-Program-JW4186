@@ -3,7 +3,10 @@ from flask import Flask, render_template, request, session, url_for, redirect, f
 from app import app
 import pymysql.cursors
 import bcrypt
+import os
 from datetime import date
+from werkzeug.utils import secure_filename
+import bleach
 
 
 ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
@@ -51,8 +54,8 @@ def loginAuth():
     if request.method == 'GET':
          return redirect(url_for('login'))
     #grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']
+    username = bleach.clean(request.form['username'])
+    password = bleach.clean(request.form['password'])
 
     #cursor used to send queries
     cursor = conn.cursor()
@@ -91,13 +94,13 @@ def registerAuth():
     if request.method == 'GET':
          return redirect(url_for('register'))
     #grabs information from the forms
-    username = request.form['username']
-    password = request.form['password']
-    fname = request.form['fname']
-    lname = request.form['lname']
-    email = request.form['email']
-    phone = request.form['phone']
-    role = request.form['role']
+    username = bleach.clean(request.form['username'])
+    password = bleach.clean(request.form['password'])
+    fname = bleach.clean(request.form['fname'])
+    lname = bleach.clean(request.form['lname'])
+    email = bleach.clean(request.form['email'])
+    phone = bleach.clean(request.form['phone'])
+    role = bleach.clean(request.form['role'])
 
     #salt and hash password
     password_bytes = password.encode('utf-8')
@@ -154,7 +157,7 @@ def item():
     if request.method == 'GET':
          return redirect(url_for('home'))
     username = session['username']
-    itemID = request.form['itemID']
+    itemID = bleach.clean(request.form['itemID'])
     cursor = conn.cursor()
     #executes query
     query = 'SELECT * FROM Piece WHERE itemID = %s'
@@ -184,7 +187,7 @@ def order():
     if request.method == 'GET':
          return redirect(url_for('home'))
     username = session['username']
-    orderID = request.form['orderID']
+    orderID = bleach.clean(request.form['orderID'])
     cursor = conn.cursor()
     itemQuery = 'SELECT * FROM ItemIn NATURAL JOIN Item WHERE orderID = %s ORDER BY ItemID ASC'
     cursor.execute(itemQuery, (orderID))
@@ -222,20 +225,20 @@ def upload():
         query = 'SELECT rDescription FROM Role NATURAL JOIN Act WHERE userName = %s'
         cursor.execute(query, (username))
         userRole = cursor.fetchone()
-        donor = request.form['donor']
-        description = request.form['description']
-        color = request.form['color']
-        isNew = request.form['isNew']
-        hasPieces = request.form['hasPieces']
-        material = request.form['material']
-        mainCategory = request.form['mainCategory']
-        subCategory = request.form['subCategory']
+        donor = bleach.clean(request.form['donor'])
+        description = bleach.clean(request.form['description'])
+        color = bleach.clean(request.form['color'])
+        isNew = bleach.clean(request.form['isNew'])
+        hasPieces = bleach.clean(request.form['hasPieces'])
+        material = bleach.clean(request.form['material'])
+        mainCategory = bleach.clean(request.form['mainCategory'])
+        subCategory = bleach.clean(request.form['subCategory'])
 
         #check donor role
         query = 'SELECT roleID FROM Act WHERE userName = %s'
         cursor.execute(query, (donor))
         donorRole = cursor.fetchone()
-        if (donorRole.get('roleID') != '2'):
+        if (donorRole is None or donorRole.get('roleID') != '2'):
             message = 'No donor found with the provided username'
             query = 'SELECT * FROM Delivered LEFT JOIN Ordered ON Ordered.orderID = Delivered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s UNION SELECT * FROM Delivered RIGHT JOIN Ordered ON Delivered.orderID = Ordered.orderID WHERE Delivered.userName = %s OR Ordered.supervisor = %s OR Ordered.client = %s'
             cursor.execute(query, (username, username, username, username, username, username))
@@ -275,11 +278,15 @@ def upload():
             cursor.close()
             return render_template('piece.html', username=username, message=message, itemID=itemID, hasPieces=hasPieces)
         if file and allowed_file(file.filename):
+            # if saving picture to folder instead
+            # filename = secure_filename(file.filename)
+            # file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             binary = file.read()
             query = 'UPDATE Item SET photo = %s WHERE itemID = %s'
             cursor.execute(query, (binary, itemID))
             conn.commit()
             cursor.close()
+            file.close()
             message = 'Donation accepted with photo'
             return render_template('piece.html', username=username, message=message, itemID=itemID, hasPieces=hasPieces)
         else:
@@ -295,17 +302,17 @@ def piece():
         return redirect(url_for('index'))
     if request.method == 'POST':
         username = session['username']
-        itemID = request.form['itemID']
-        pieceNum = request.form['pieceNum']
-        pDescription = request.form['pDescription']
-        length = request.form['length']
-        width = request.form['width']
-        height = request.form['height']
-        roomNum = request.form['roomNum']
-        shelfNum = request.form['shelfNum']
-        pNotes = request.form['pNotes']
-        hasPieces = request.form['hasPieces']
-        more = request.form['continue']
+        itemID = bleach.clean(request.form['itemID'])
+        pieceNum = bleach.clean(request.form['pieceNum'])
+        pDescription = bleach.clean(request.form['pDescription'])
+        length = bleach.clean(request.form['length'])
+        width = bleach.clean(request.form['width'])
+        height = bleach.clean(request.form['height'])
+        roomNum = bleach.clean(request.form['roomNum'])
+        shelfNum = bleach.clean(request.form['shelfNum'])
+        pNotes = bleach.clean(request.form['pNotes'])
+        hasPieces = bleach.clean(request.form['hasPieces'])
+        more = bleach.clean(request.form['continue'])
 
         # check if pieceNum is unique for item
         cursor = conn.cursor()
@@ -342,8 +349,8 @@ def update():
         return redirect(url_for('index'))
     if not request.method == 'POST':
         return redirect(url_for('home'))
-    orderID = request.form['orderID']
-    newStatus = request.form['newStatus']
+    orderID = bleach.clean(request.form['orderID'])
+    newStatus = bleach.clean(request.form['newStatus'])
     cursor = conn.cursor()
     query = 'UPDATE Delivered SET status = %s WHERE orderID = %s'
     cursor.execute(query, (newStatus, orderID))
@@ -359,7 +366,7 @@ def logout():
     return redirect('/')
 
 
-app.secret_key = 'some key that you will never guess'
+app.secret_key = 'afdhuaisfo3w8efaof9428e9afuaf'
 if __name__ == "__main__":
     app.run('127.0.0.1', 5000, debug = False)
 

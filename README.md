@@ -2,7 +2,11 @@
  Jeffrey Wong's final project for Database Systems class
 
 - Languages: Python, HTML
-- Frameworks: flask, pymysql, bcrypt (for password encryption)
+- Frameworks and Packages:
+    - flask
+    - pymysql
+    - bcrypt: for password encryption
+    - bleach: to protect against XSS
 - Procedures:
     - Create MySQL Database 'WelcomeHome' on port 8889
     - Use provided SQL file to initialize tables and insert test data

@@ -263,13 +263,12 @@ def upload():
         cursor.execute(query, (itemID, donor, donateDate))
 
         # check if the post request has the file part
-        if 'file' not in request.files:
+        if 'photo' not in request.files:
             message = 'Donation accepted'
             conn.commit()
             cursor.close()
             return render_template('piece.html', username=username, message=message, itemID=itemID, hasPieces=hasPieces)
-        file = request.files['file']
-        itemID = request.form['itemID']
+        file = request.files['photo']
         if file.filename == '':
             message = 'Donation accepted'
             conn.commit()

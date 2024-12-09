@@ -71,7 +71,7 @@
                         {% if role.rDescription == "Staff" %}
                         <hr />
                         <h5 class="font-weight-light my-2 text-center">Accept Donation</h5>
-						<form action="/upload" method="POST">
+						<form action="/upload" method="POST" enctype="multipart/form-data">
 							<div class="form-group m-2 px-5">
 								<label for="donor">Donor Username: </label>
 								<input type="text" class="form-control" id="donor" name ="donor" placeholder="required" required/>
